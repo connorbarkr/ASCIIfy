@@ -1,15 +1,3 @@
-function messageListener(response, sender, sendResponse) {
-  switch (response) {
-    case "testBackground":
-      alert(response);
-      break;
-    default:
-      break;
-  }
-}
-
-function init() {
-  chrome.runtime.onMessage.addListener(messageListener);
-}
-
-init();
+chrome.browserAction.onClicked.addListener(function(tab) {
+  chrome.tabs.executeScript(null, {file: "content_script.js"});
+});
