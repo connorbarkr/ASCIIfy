@@ -4,9 +4,6 @@
   "name": "ASCIIfy",
   "description": "This extension changes all images on a webpage into ASCII art.",
   "version": "0.1",
-  "web_accessible_resources": [
-    "POTD_chick_3597497k.jpg"
-  ],
   "background": {
     "scripts": ["background.js"],
     "persistent": false

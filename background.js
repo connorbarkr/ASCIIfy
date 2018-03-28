@@ -1,3 +1,9 @@
-chrome.browserAction.onClicked.addListener(function(tab) {
-  chrome.tabs.executeScript(null, {file: "content_script.js"});
+chrome.browserAction.onClicked.addListener((tab) => {
+  chrome.tabs.executeScript({
+    file: "jquery.min.js"
+  }, () => {
+    chrome.tabs.executeScript({
+      file: "content_script.js"
+    });
+  });
 });
