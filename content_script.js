@@ -1,40 +1,12 @@
-function c2a(r, g, b) {
-  let grayscale = ((0.3 * r) + (0.59 * g) + (0.11 * b)) / 256;
-  switch (Math.floor(grayscale * 10) / 10) {
-    case (0.0):
-      return ' ';
-      break;
-    case (0.1):
-      return '.';
-      break;
-    case (0.2):
-      return ':';
-      break;
-    case (0.3):
-      return '-';
-      break;
-    case (0.4):
-      return '=';
-      break;
-    case (0.5):
-      return '+';
-      break;
-    case (0.6):
-      return '*';
-      break;
-    case (0.7):
-      return '#';
-      break;
-    case (0.8):
-      return '%';
-      break;
-    case (0.9):
-      return '@';
-      break;
-    default:
-      return ' ';
-      break;
-  }
+function getRGB(data, index) {
+  index *= 4;
+  return [data[index], data[index + 1], data[index + 2]];
+};
+
+function g2a(grayscale) {
+  let chars = ['@','#','$','=','*','!',';',':','~','-',',','.','&nbsp;', '&nbsp;'];
+	let charLen = chars.length - 1;
+  return chars[parseInt(grayscale * charLen, 10)];
 }
 
 function asciify() {
@@ -52,56 +24,66 @@ function asciify() {
     } else {
       continue;
     }
-    let jqRet = '<textarea id="ta' + imgId.toString() + '" style="resize: none; color: black; font-family: Courier; font-size: 10px; line-height: 1em; padding: 0px; ';
+    let jqRet = '<textarea id="ta' + imgId.toString() + '" style="resize: none; color: black; font-family: Courier; font-size: 7px; line-height: 1em; padding: 0px; ';
     let width = original.offsetWidth || original.naturalWidth;
     let height = original.offsetHeight || original.naturalHeight;
-    if (width < 100 || height < 100)
+    let ratio = width / height;
+    height = parseInt(width * (height / width), 10);
+    if (width < 100 || height < 100) {
+      console.log("Too smol");
       continue;
+    }
     jqRet += 'width: ' + width.toString() + 'px; height: ' + height.toString() + 'px;">';
-    //content constructor
-    jqRet += contentConstructor(src, width, height);
-    //closing tag constructor
-    jqRet += '</textarea>';
-    console.log(contentConstructor(src, width, height));
-    $(jqObj).parent('a').replaceWith(jqRet);
+    //content + closing tag constructors
+    const promise = contentConstructor(src, width, height);
+    promise.then((result) => {
+      jqRet += result;
+      jqRet += '</textarea>';
+      $(jqObj).parent('a').replaceWith(jqRet);
+    });
   }
 }
 
 function contentConstructor(src, width, height) {
-  let img = document.createElement('img');
-  img.crossOrigin = 'Anonymous';
-  img.src = src;
-  let cols = Math.ceil(width / 6.5);
-  let rows = Math.ceil(height / 10);
-  let cWidth = Math.ceil(width / cols);
-  let cHeight = Math.ceil(height / rows);
-  let canvas = document.createElement('canvas');
-  let ctx = canvas.getContext('2d');
-  canvas.width = cWidth;
-  canvas.height = cHeight;
-  let ret = '';
-
-  for (var i = 0; i < rows - 1; i++) {
-    for (var j = 0; j < cols; j++) {
-      ctx.drawImage(img, i * cWidth, j * cHeight, cWidth, cHeight, 0, 0, canvas.width, canvas.height);
-      let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      let rgb = {r:0, g:0, b:0};
-      let count = 0;
-      for (var k = 0; k < imgData.data.length; k += 4) {
-        ++count;
-        rgb.r += imgData.data[k];
-        rgb.g += imgData.data[k + 1];
-        rgb.b += imgData.data[k + 2];
+  return new Promise((resolve, reject) => {
+    let img = document.createElement('img');
+    img.crossOrigin = 'Anonymous';
+    img.src = src;
+    //specific nums due to specific font size
+    let cols = Math.floor(width / 4.2);
+    let rows = Math.floor(height / 7.03);
+    let cellWidth = Math.floor(width / cols);
+    let cellHeight = Math.floor(height / rows);
+    let canvas = document.createElement('canvas');
+    let ctx = canvas.getContext('2d');
+    canvas.width = width;
+    canvas.height = height;
+    let ret = '';
+    img.onload = () => {
+      console.log("New image");
+      for (var i = 0; i < rows; i++) {
+        for (var j = 0; j < cols - 1; j++) {
+          let canvas = document.createElement('canvas');
+          let ctx = canvas.getContext('2d');
+          canvas.width = cellWidth;
+          canvas.height = cellHeight;
+          ctx.drawImage(img, j * cellWidth, i * cellHeight, (j * cellWidth) + cellWidth, (i * cellHeight) + cellHeight, 0, 0, cellWidth, cellHeight);
+          imgData = ctx.getImageData(0, 0, cellWidth, cellHeight).data;
+          let len = cellWidth * cellHeight;
+          let total = 0;
+          for (var k = 0; k < len; k++) {
+            let rgb = getRGB(imgData, k);
+            total += Math.max(rgb[0] * 0.3, rgb[1] * 0.59, rgb[2] * 0.11) / 255;
+          }
+          total = total / len;
+          ret += g2a(total);
+        }
+        ret += '\n';
       }
-      rgb.r = Math.floor(rgb.r / count);
-      rgb.g = Math.floor(rgb.g / count);
-      rgb.b = Math.floor(rgb.b / count);
-      ret += c2a(rgb.r, rgb.g, rgb.b);
+      ret = ret.slice(0, -1);
+      resolve(ret);
     }
-    if (i != rows - 2)
-      ret += '\n';
-  }
-  return ret;
+  });
 }
 
 asciify();
