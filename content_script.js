@@ -4,7 +4,7 @@ function getRGB(data, index) {
 };
 
 function g2a(grayscale) {
-  let index = Math.ceil(grayscale * 9);
+  let index = Math.ceil(grayscale * 10) - 1;
   let values = ['@', '%', '#', 'x', '+', '=', ':', '-', '.', ' '];
   return values[index];
 }
