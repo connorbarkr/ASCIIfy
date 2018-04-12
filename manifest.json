@@ -3,17 +3,13 @@
 
   "name": "ASCIIfy",
   "description": "This extension changes all images on a webpage into ASCII art.",
-  "version": "0.1",
+  "version": "1.0",
   "background": {
     "scripts": ["background.js"],
     "persistent": false
   },
   "permissions": [
-    "tabs",
-    "http://*/*",
-    "https://*/*",
-    "<all_urls>",
-    "activeTab"
+    "<all_urls>"
   ],
   "browser_action": {
     "default_title": "ASCIIfy!"
