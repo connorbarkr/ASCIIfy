@@ -12,6 +12,7 @@
     "tabs",
     "http://*/*",
     "https://*/*",
+    "<all_urls>",
     "activeTab"
   ],
   "browser_action": {
