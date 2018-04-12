@@ -53,8 +53,8 @@ function contentConstructor(src, width, height) {
     img.crossOrigin = 'Anonymous';
     img.src = src;
     //specific nums due to specific font size
-    let cols = Math.floor(width / 2.459);
-    let rows = Math.floor(height / 4.081);
+    let cols = Math.floor(width / 2.5);
+    let rows = Math.floor(height / 4);
     let cellWidth = Math.floor(width / cols);
     let cellHeight = Math.floor(height / rows);
     let canvas = document.createElement('canvas');

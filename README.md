@@ -11,4 +11,4 @@ It's sort of rough around the edges - making a proper image converter is only re
 1. Navigate to chrome://extensions
 2. Enable developer mode in the upper-right hand corner
 3. Select 'load unpacked'
-4. Choose the directory your extension is located in
+4. Choose the directory the extension clone is located in
