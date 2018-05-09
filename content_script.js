@@ -3,10 +3,19 @@ function getRGB(data, index) {
   return [data[index], data[index + 1], data[index + 2]];
 };
 
+function getChar(val) {
+  let chars = ['@', '%', '#', 'x', '+', '=', ':', '-', '.', ' '];
+  return chars[parseInt(val * (chars.length - 1), 10)];
+}
+
 function g2a(grayscale) {
   let index = Math.ceil(grayscale * 10) - 1;
   let values = ['@', '%', '#', 'x', '+', '=', ':', '-', '.', ' '];
   return values[index];
+}
+
+function normalize(rgb) {
+
 }
 
 function asciify() {
@@ -27,7 +36,7 @@ function asciify() {
     } else {
       continue;
     }
-    let jqRet = '<textarea id="ta' + imgId.toString() + '" style="border: none; resize: none; color: black; font-family: Courier; font-size: 4px; line-height: 1em; padding: 0px; ';
+    let jqRet = '<pre id="ASCIIfied' + imgId.toString() + '"'; //' resize: none; color: black; font-family: Courier; font-size: 4px; line-height: 1em; padding: 0px; ';
     let width = original.offsetWidth || original.naturalWidth;
     let height = original.offsetHeight || original.naturalHeight;
     let ratio = width / height;
@@ -41,7 +50,7 @@ function asciify() {
     const promise = contentConstructor(src, width, height);
     promise.then((result) => {
       jqRet += result;
-      jqRet += '</textarea>';
+      jqRet += '</pre>';
       $(jqObj).parent('a').replaceWith(jqRet);
     });
   }
@@ -69,17 +78,23 @@ function contentConstructor(src, width, height) {
           ctx.drawImage(img, j * cellWidth, i * cellHeight, (j * cellWidth) + cellWidth, (i * cellHeight) + cellHeight, 0, 0, cellWidth, cellHeight);
           imgData = ctx.getImageData(0, 0, cellWidth, cellHeight).data;
           let len = cellWidth * cellHeight;
-          let total = 0;
+          let totalr = 0;
+              totalg = 0;
+              totalb = 0;
           for (var k = 0; k < len; k++) {
             let rgb = getRGB(imgData, k);
-            total += ((rgb[0] * 0.299) + (rgb[1] * 0.587) + (rgb[2] * 0.114)) / 255;
+            totalr += rgb[0];
+            totalg += rgb[1];
+            totalb += rgb[2];
           }
-          total = total / len;
-          ret += g2a(total);
+          totalr = Math.ceil(totalr / len);
+          totalg = Math.ceil(totalg / len);
+          totalb = Math.ceil(totalb / len);
+          let rgb = [totalr, totalg, totalb];
+          ret += '<font style="font-size: 4px; color: rgb(' + rgb.join(',') + ')">' + getChar(Math.max(rgb[0], rgb[1], rgb[2]) / 255) + '</font>';
         }
-        ret += '\n';
+        ret += '<br>';
       }
-      ret = ret.slice(0, -1);
       resolve(ret);
     }
   });
